@@ -1,0 +1,107 @@
+app:
+  name: "InternScout"
+  version: "0.1.0"
+  description: "多平台实习信息搜集系统"
+
+database:
+  # sqlite or postgresql
+  type: sqlite
+  url: "sqlite:///./data/internscout.db"
+  # For PostgreSQL:
+  # type: postgresql
+  # host: localhost
+  # port: 5432
+  # database: internscout
+  # user: postgres
+  # password: password
+  pool_size: 10
+  max_overflow: 20
+
+redis:
+  host: localhost
+  port: 6379
+  db: 0
+  password: null
+
+crawler:
+  concurrent_requests: 16
+  download_delay: 1.0
+  randomize_download_delay: 0.5
+  retry_times: 3
+  retry_delay: 1.0
+  timeout: 30
+  user_agent_rotation: true
+  proxy_enabled: false
+  proxy_pool: []
+
+playwright:
+  headless: true
+  timeout: 30000
+  viewport_width: 1920
+  viewport_height: 1080
+
+scheduler:
+  enabled: true
+  timezone: "Asia/Shanghai"
+  jobs:
+    - id: shixiseng_daily
+      spider: shixiseng
+      trigger: interval
+      hours: 6
+    - id: boss_zhipin_daily
+      spider: boss_zhipin
+      trigger: interval
+      hours: 6
+
+web:
+  host: "0.0.0.0"
+  port: 8000
+  debug: false
+  secret_key: "change-me-in-production"
+  page_size: 20
+
+notification:
+  email:
+    enabled: false
+    smtp_host: "smtp.gmail.com"
+    smtp_port: 587
+    smtp_user: ""
+    smtp_password: ""
+    recipients: []
+  webhook:
+    enabled: false
+    url: ""
+    type: "dingtalk"
+  rss:
+    enabled: true
+    max_items: 100
+
+logging:
+  level: "INFO"
+  format: "{time:YYYY-MM-DD HH:mm:ss} | {level} | {name} | {message}"
+  file: "logs/internscout.log"
+  rotation: "10 MB"
+  retention: "30 days"
+
+# Spider-specific settings
+spiders:
+  shixiseng:
+    base_url: "https://www.shixiseng.com"
+    search_url: "https://www.shixiseng.com/interns"
+    max_pages: 10
+    keywords: ["实习", " intern ", "实习生"]
+    cities: ["北京", "上海", "深圳", "杭州", "广州", "成都"]
+  boss_zhipin:
+    base_url: "https://www.zhipin.com"
+    search_url: "https://www.zhipin.com/web/geek/job"
+    max_pages: 10
+    keywords: ["实习", " intern "]
+    cities: ["101010100", "101020100", "101280600", "101210100"]
+  xiaohongshu:
+    base_url: "https://www.xiaohongshu.com"
+    search_keywords: ["实习面经", "互联网实习", "大厂实习"]
+    max_results: 50
+  nowcoder:
+    base_url: "https://www.nowcoder.com"
+    interview_url: "https://www.nowcoder.com/discuss"
+    max_pages: 5

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}面经列表 - InternScout{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h1 class="card-title">面试经验</h1>
+    </div>
+
+    <form class="search-form" method="get" action="/interviews">
+        <input
+            type="text"
+            name="company"
+            class="search-input"
+            placeholder="搜索公司名称..."
+            value="{{ company }}"
+        >
+        <button type="submit" class="btn btn-primary">搜索</button>
+    </form>
+</div>
+
+<div class="job-list">
+    {% for interview in interviews %}
+    <div class="job-item">
+        <div class="job-header">
+            <span class="job-title">{{ interview.company }} - {{ interview.position }}</span>
+            <span class="tag {% if interview.result == '通过' %}tag-primary{% endif %}">
+                {{ interview.result or '结果未知' }}
+            </span>
+        </div>
+        <div class="job-meta">
+            <span>难度: {{ interview.difficulty or '未知' }}</span>
+            <span>体验: {{ interview.experience or '未知' }}</span>
+            <span>来源: {{ interview.source }}</span>
+        </div>
+        {% if interview.content %}
+        <p style="margin-top: 0.75rem; color: #666; font-size: 0.9rem;">
+            {{ interview.content[:300] }}{% if interview.content|length > 300 %}...{% endif %}
+        </p>
+        {% endif %}
+        {% if interview.questions %}
+        <div class="job-tags" style="margin-top: 0.5rem;">
+            <span style="font-size: 0.8rem; color: #888;">面试问题:</span>
+            {% for q in interview.questions[:3] %}
+            <span class="tag">{{ q[:20] }}{% if q|length > 20 %}...{% endif %}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="card text-center">
+        <p>暂见面经数据</p>
+    </div>
+    {% endfor %}
+</div>
+
+{% if interviews %}
+<div class="pagination">
+    {% if page > 1 %}
+    <a href="/interviews?page={{ page - 1 }}&company={{ company }}" class="page-link">上一页</a>
+    {% endif %}
+    <span class="page-link active">{{ page }}</span>
+    <a href="/interviews?page={{ page + 1 }}&company={{ company }}" class="page-link">下一页</a>
+</div>
+{% endif %}
+{% endblock %}

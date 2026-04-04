@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value" id="job-count">-</div>
+        <div class="stat-label">职位总数</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" id="company-count">-</div>
+        <div class="stat-label">公司数量</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" id="interview-count">-</div>
+        <div class="stat-label">面经数量</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" id="today-count">-</div>
+        <div class="stat-label">今日新增</div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">系统状态</h2>
+    </div>
+    <p>InternScout 是一个多平台实习信息搜集系统，自动从各大招聘网站采集实习岗位信息和面试经验。</p>
+    <div class="mt-4">
+        <a href="/jobs" class="btn btn-primary">浏览职位</a>
+        <a href="/interviews" class="btn btn-secondary">查看面经</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">快速操作</h2>
+    </div>
+    <div class="mt-4">
+        <button onclick="runSpider('shixiseng')" class="btn btn-primary">运行实习僧爬虫</button>
+        <button onclick="runSpider('boss_zhipin')" class="btn btn-secondary">运行Boss直聘爬虫</button>
+    </div>
+    <div id="spider-result" class="mt-4"></div>
+</div>
+
+<script>
+// 加载统计数据
+async function loadStats() {
+    try {
+        const response = await fetch('/api/stats');
+        const data = await response.json();
+
+        document.getElementById('job-count').textContent = data.jobs.total || 0;
+        document.getElementById('company-count').textContent = data.companies.total || 0;
+        document.getElementById('interview-count').textContent = data.interviews.total || 0;
+        document.getElementById('today-count').textContent = data.jobs.today_new || 0;
+    } catch (error) {
+        console.error('Failed to load stats:', error);
+    }
+}
+
+// 运行爬虫
+async function runSpider(spiderName) {
+    const resultDiv = document.getElementById('spider-result');
+    resultDiv.innerHTML = '<p>正在运行爬虫...</p>';
+
+    try {
+        const response = await fetch(`/api/spiders/${spiderName}/run`, {
+            method: 'POST',
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            resultDiv.innerHTML = `<p style="color: green;">爬虫运行成功！采集到 ${data.count} 条数据</p>`;
+            loadStats(); // 刷新统计
+        } else {
+            resultDiv.innerHTML = `<p style="color: red;">爬虫运行失败</p>`;
+        }
+    } catch (error) {
+        resultDiv.innerHTML = `<p style="color: red;">错误: ${error.message}</p>`;
+    }
+}
+
+// 页面加载时获取统计
+loadStats();
+</script>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}公司列表 - InternScout{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h1 class="card-title">公司信息</h1>
+    </div>
+</div>
+
+<div class="job-list">
+    {% for company in companies %}
+    <div class="job-item">
+        <div class="job-header">
+            <span class="job-title">{{ company.name }}</span>
+            <span class="tag tag-primary">{{ company.industry or '其他行业' }}</span>
+        </div>
+        <div class="job-meta">
+            <span>{{ company.size or '规模未知' }}</span>
+            <span>{{ company.stage or '' }}</span>
+        </div>
+        {% if company.description %}
+        <p style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">
+            {{ company.description[:200] }}{% if company.description|length > 200 %}...{% endif %}
+        </p>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="card text-center">
+        <p>暂无公司数据</p>
+    </div>
+    {% endfor %}
+</div>
+
+{% if companies %}
+<div class="pagination">
+    {% if page > 1 %}
+    <a href="/companies?page={{ page - 1 }}" class="page-link">上一页</a>
+    {% endif %}
+    <span class="page-link active">{{ page }}</span>
+    <a href="/companies?page={{ page + 1 }}" class="page-link">下一页</a>
+</div>
+{% endif %}
+{% endblock %}
